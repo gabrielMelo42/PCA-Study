@@ -20,8 +20,15 @@ sheets_url = 'https://raw.githubusercontent.com/gabrielMessias/MQAAE/master/Auti
 df = pd.read_csv(sheets_url)
 #utiliza o metodo read_csv do pandas, analisando os dados de sheets_url
 
-df
+print(df)
 #exibe os dados do dataset
+
+"""As 10 primeiras colunas correspondem a 10 diferentes testes para verificar se uma pessoa está dentro do espectro do autismo. Essas colunas, numericas, sao as que nos interessam nesse trabalho e os principais fatores que idenitificam se uma pessoa tem autismo ou nao.
+
+Os outros componentes nao nos interessam nesse trabalho, exceto ClassASD, que eh nosso target, indicando se uma pessoa possui autismo ou nao.
+
+Os outros componentes sao: "age" eh a idade da pessoa; "gender" o seu genero, masculino ou feminino;	"ethnicity" sua etnia; 	"contry" seu país; 	"result" a soma dos testes que verificam o autismo; "age_desc" a faixa de idade.
+"""
 
 df.isnull().sum()
 #verifica se há algum dado nulo, pois se houver, teríamos que tratá-los
@@ -33,17 +40,25 @@ df.replace('YES', 1, inplace = True)
 #transformamos esses dados em números inteiros, em que 0 significa
 #"não possui autismo" e 1 significa "possui autismo"
 
+correlation_matrix = df.corr()
+print(correlation_matrix)
+#Aqui fazemos a matriz de correlacao e a exibimos
+
+eigenvalues, eigenvectors = LA.eig(correlation_matrix)
+#encontramos os autovalores e os autovetores
+
+print(eigenvalues)
+
+print(eigenvectors)
+
 pca_1 = PCA(n_components = 2)
 pca_2 = PCA(n_components = 1)
+#calculamos o pca para 2 componentes e 1 componente, respectivamente
 
-#pca_3 = PCA(n_components = 3)
-#pca_4 = PCA(0.90)#0 - 1(variancia que voce quer explicar)
 df_numerics = df[['A1_Score', 'A2_Score', 'A3_Score',	'A4_Score',	'A5_Score',	'A6_Score',	'A7_Score',	'A8_Score',	'A9_Score', 'A10_Score']].copy()
 
 numerics_transformed_1 = pca_1.fit_transform(df_numerics)
 numerics_transformed_2 = pca_2.fit_transform(df_numerics)
-#numerics_transformed_3 = pca_3.fit_transform(df_numerics)
-#numerics_transformed_4 = pca_4.fit_transform(df_numerics)
 
 """Na célula acima, criamos 2 variáveis para a realização do teste de PCA:
 pca_1 fará a redução para 2 componentes e pca_2 para 1 componente.
@@ -53,7 +68,7 @@ A variável df_numerics é o novo dataframe, apenas com os teste de autismo (as 
 numerics_transformed_1 é o novo dataframe com a aplicação do PCA, a partir do método fit_transform do objeto pca_1, o mesmo para numerics_transformed_2 e pca_2.
 """
 
-numerics_transformed_1
+print(numerics_transformed_1)
 #exibição do novo dataframe, agora com o teste de PCA realizado
 
 Xax=numerics_transformed_1[:,0]
@@ -87,3 +102,8 @@ test = pd.DataFrame(numerics_transformed_2, df.ClassASD).reset_index()
 test.columns= ['Autism', 'Principal Component']
 
 sns.catplot(x="Autism", y='Principal Component', data=test);
+#exibimos o grafico para 1 componente
+
+"""Ambos os pca's aplicados sao bons: o pca com 2 componentes, que conseerva mais da informacao original, eh mais preciso que com 1 componente
+Pode-se identificar a separacao entre as pessoas com autismo e as pessoas sem autismo entre 0.0 e -0.5
+"""
