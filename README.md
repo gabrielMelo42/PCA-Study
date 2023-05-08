@@ -1,3 +1,3 @@
 # PCA-Study
 
-PCA Implementation without using any libraries
+PCA Implementation without using libraries
